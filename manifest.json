@@ -8,12 +8,12 @@
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "image/Konter Jalur Langit.png",
+      "src": "Konter Jalur Langit.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "image/Konter Jalur Langit.png",
+      "src": "Konter Jalur Langit.png",
       "sizes": "512x512",
       "type": "image/png"
     }
