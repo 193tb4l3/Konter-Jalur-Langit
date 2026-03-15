@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AztaoTech - Pro Manager v4.3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="icon" type="image/png" href="Konter Jalur Langit.png">
+    <link rel="apple-touch-icon" href="Konter Jalur Langit.png">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #94a3b8;
+            --accent: #38bdf8;
+            --bg-site: #f8fafc;
+            --sidebar-width: 260px;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-site); margin: 0; display: flex; min-height: 100vh; color: #1e293b; overflow-x: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: var(--sidebar-width); background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 1000; transition: transform 0.3s ease; }
+        .sidebar-header { padding: 40px 20px; text-align: center; border-bottom: 1px solid #1e293b; }
+        .sidebar-logo { max-width: 110px; margin-bottom: 10px; filter: drop-shadow(0 0 8px var(--accent)); }
+        .sidebar-header h2 { font-size: 13px; color: var(--accent); font-weight: 800; margin: 0; letter-spacing: 1px; }
+        .nav-menu { padding: 20px 15px; flex-grow: 1; }
+        .nav-item { padding: 14px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-radius: 12px; margin-bottom: 8px; font-weight: 600; font-size: 14px; transition: 0.2s; }
+        .nav-item:hover { background: #1e293b; color: #fff; }
+        .nav-item.active { background: var(--primary); color: #fff; }
+
+        /* Overlay untuk menutup sidebar */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(2px); }
+
+        .menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; background: var(--sidebar-bg); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        /* --- CONTENT --- */
+        .main-content { margin-left: var(--sidebar-width); flex-grow: 1; padding: 40px; width: 100%; box-sizing: border-box; transition: 0.3s; }
+        .container { max-width: 650px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 24px; padding: 30px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02); }
+        
+        /* ... Style Input & Button (Sama seperti v4.2) ... */
+        .form-group { margin-bottom: 15px; }
+        .flex-group { display: flex; gap: 12px; }
+        .flex-group div { flex: 1; }
+        label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 14px; box-sizing: border-box; }
+        .btn { padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-share { background: var(--success); color: white; margin-top: 10px; }
+
+        /* --- STRUK AREA --- */
+        .struk-area { background: #fff; padding: 25px; width: 280px; margin: 0 auto 20px; font-family: 'Courier New', monospace; color: #000; box-shadow: 0 0 30px rgba(0,0,0,0.05); text-align: left; }
+        .divider { border-top: 1px dashed #000; margin: 10px 0; }
+        .row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar.open + .sidebar-overlay { display: block; }
+            .main-content { margin-left: 0; padding: 80px 20px; }
+            .menu-btn { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
+    
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="AztaoTech.png" alt="Logo" class="sidebar-logo">
+            <h2>AZTAO TECH</h2>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" id="btn-dash" onclick="showPage('input')">⚡ Transaksi</div>
+            <div class="nav-item" id="btn-hist" onclick="showPage('history')">📜 Riwayat</div>
+        </div>
+    </nav>
+
+    <main class="main-content" id="main-content">
+        <div class="container">
+            <div id="page-input">
+                <div class="card" id="form-card">
+                    <h3 style="margin:0 0 20px 0">Input Transaksi</h3>
+                    <div class="form-group"><label>Nama Pelanggan</label><input type="text" id="nama" placeholder="Nama..."></div>
+                    <div class="form-group">
+                        <label>Layanan</label>
+                        <select id="layanan" onchange="checkSvc()">
+                            <option value="PULSA">Pulsa</option>
+                            <option value="PAKET DATA">Paket Data</option>
+                            <option value="TOKEN PLN">Token PLN</option>
+                            <option value="PH DETECTION">pH Detection</option>
+                            <option value="SOLAR TRACKING">Solar Tracking</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="group-target"><label id="label-target">Nomor HP</label><input type="number" id="target_id"></div>
+                    <div class="flex-group">
+                        <div class="form-group"><label>Total Harga</label><input type="number" id="harga_total" placeholder="0"></div>
+                        <div class="form-group"><label>Dibayar Awal</label><input type="number" id="bayar_nominal" placeholder="0"></div>
+                    </div>
+                    <div id="group-pulsa" class="form-group"><label>Nominal Pulsa</label><input type="text" id="nominal_pulsa"></div>
+                    <div id="group-kuota" style="display:none">
+                        <div class="flex-group">
+                            <div class="form-group"><label>Kuota</label><input type="text" id="jumlah_kuota"></div>
+                            <div class="form-group"><label>Hari</label><input type="number" id="masa_aktif"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="proses()">CETAK STRUK</button>
+                </div>
+
+                <div id="halaman-struk" style="display:none; text-align:center">
+                    <div id="struk-capture" class="struk-area">
+                        <div style="text-align:center">
+                            <img src="Jalur Langit.PNG" style="max-width:60px">
+                            <div style="font-weight:900; font-size:15px">KONTER JALUR LANGIT</div>
+                            <div style="font-size:8px">Rempek Darussalam, Lombok Utara</div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="row"><span>Waktu:</span><span id="s-waktu"></span></div>
+                        <div class="row"><span>Nama:</span><b id="s-nama"></b></div>
+                        <div id="s-area-target" class="row"><span id="s-lbl-target">Nomor:</span><b id="s-val-target"></b></div>
+                        <div id="s-detail-area"><div id="s-detail-1" class="row"></div><div id="s-detail-2" class="row"></div></div>
+                        <div class="divider"></div>
+                        <div id="s-lay" style="font-weight:900; text-align:center; font-size:13px"></div>
+                        <div class="row" style="margin-top:8px"><span>Total Harga:</span><span id="s-total-all"></span></div>
+                        <div class="row"><span>Total Dibayar:</span><span id="s-total-paid"></span></div>
+                        <div id="s-area-remaining" class="row" style="color:red; font-weight:900; border-top:1px solid #000; margin-top:5px; padding-top:3px">
+                            <span>SISA HUTANG:</span><span id="s-remaining"></span>
+                        </div>
+                        <div class="divider"></div>
+                        <div id="s-status-lunas" style="text-align:center; font-weight:bold; font-size:10px">--- TERIMA KASIH ---</div>
+                    </div>
+                    <div style="max-width:300px; margin: 0 auto;">
+                        <button class="btn btn-share" onclick="shareStruk()">📤 BAGIKAN STRUK</button>
+                        <button class="btn" style="margin-top:10px; background:#e2e8f0; color:#475569" onclick="reset()">⬅️ KEMBALI</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-history" style="display:none">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                        <h3 style="margin:0">Riwayat & Piutang</h3>
+                        <button class="btn" style="background:var(--danger); color:white; padding:8px 12px; font-size:11px; width:auto" onclick="hapusSemua()">🗑️ Hapus Semua</button>
+                    </div>
+                    <div id="list-hist"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('az_db_v43')) || [];
+
+    // Fungsi Toggle Sidebar dengan Overlay
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+    }
+
+    // Menutup navbar saat mengklik area di luar sidebar di HP
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.querySelector('.menu-btn');
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickInsideMenuBtn = menuBtn.contains(event.target);
+
+        if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+            if (!isClickInsideSidebar && !isClickInsideMenuBtn) {
+                toggleSidebar();
+            }
+        }
+    });
+
+    function showPage(p) {
+        document.getElementById('page-input').style.display = p === 'input' ? 'block' : 'none';
+        document.getElementById('page-history').style.display = p === 'history' ? 'block' : 'none';
+        document.getElementById('btn-dash').classList.toggle('active', p === 'input');
+        document.getElementById('btn-hist').classList.toggle('active', p === 'history');
+        if(p === 'history') render();
+        
+        // Tutup navbar otomatis setelah pilih menu di HP
+        if(window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.remove('open');
+        }
+    }
+
+    // ... (Logika Database, Struk, Cicil, dll tetap sama seperti v4.2) ...
+    function checkSvc() {
+        const s = document.getElementById('layanan').value;
+        document.getElementById('group-target').style.display = (s.includes('PH') || s.includes('SOLAR')) ? 'none' : 'block';
+        document.getElementById('group-pulsa').style.display = (s === 'PULSA') ? 'block' : 'none';
+        document.getElementById('group-kuota').style.display = (s === 'PAKET DATA') ? 'block' : 'none';
+    }
+
+    function proses() {
+        const now = new Date();
+        const t = parseInt(document.getElementById('harga_total').value) || 0;
+        const b = parseInt(document.getElementById('bayar_nominal').value) || 0;
+        const data = {
+            id: Date.now(),
+            nama: document.getElementById('nama').value.toUpperCase(),
+            lay: document.getElementById('layanan').value,
+            target: document.getElementById('target_id').value,
+            nominal: document.getElementById('nominal_pulsa').value,
+            kuota: document.getElementById('jumlah_kuota').value,
+            hari: document.getElementById('masa_aktif').value,
+            total: t, paid: b, rem: t - b,
+            waktu: now.toLocaleDateString('id-ID') + " " + now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})
+        };
+        if(!data.nama || t <= 0) return alert("Lengkapi data!");
+        db.push(data); saveDB(); viewStruk(data.id);
+    }
+
+    function viewStruk(targetId) {
+        const data = db.find(item => item.id === targetId);
+        if(!data) return;
+        document.getElementById('s-waktu').innerText = data.waktu;
+        document.getElementById('s-nama').innerText = data.nama;
+        document.getElementById('s-lay').innerText = data.lay;
+        document.getElementById('s-total-all').innerText = "Rp" + data.total.toLocaleString();
+        document.getElementById('s-total-paid').innerText = "Rp" + data.paid.toLocaleString();
+        const areaRem = document.getElementById('s-area-remaining');
+        if(data.rem > 0) {
+            areaRem.style.display = 'flex';
+            document.getElementById('s-remaining').innerText = "Rp" + data.rem.toLocaleString();
+            document.getElementById('s-status-lunas').innerText = "--- PIUTANG ---";
+        } else {
+            areaRem.style.display = 'none';
+            document.getElementById('s-status-lunas').innerText = "--- LUNAS ---";
+        }
+        document.getElementById('s-area-target').style.display = (data.lay.includes('PH') || data.lay.includes('SOLAR')) ? 'none' : 'flex';
+        document.getElementById('s-lbl-target').innerText = data.lay === 'TOKEN PLN' ? 'ID Meter:' : 'No HP:';
+        document.getElementById('s-val-target').innerText = data.target;
+        const d1 = document.getElementById('s-detail-1');
+        const d2 = document.getElementById('s-detail-2');
+        d1.innerHTML = data.lay === 'PULSA' ? `<span>Nominal:</span><b>${data.nominal}</b>` : (data.lay === 'PAKET DATA' ? `<span>Kuota:</span><b>${data.kuota}</b>` : '');
+        d2.innerHTML = data.lay === 'PAKET DATA' ? `<span>Aktif:</span><b>${data.hari} Hari</b>` : '';
+        document.getElementById('page-input').style.display = 'block';
+        document.getElementById('page-history').style.display = 'none';
+        document.getElementById('form-card').style.display = 'none';
+        document.getElementById('halaman-struk').style.display = 'block';
+        document.getElementById('btn-dash').classList.add('active');
+        document.getElementById('btn-hist').classList.remove('active');
+    }
+
+    function render() {
+        const l = document.getElementById('list-hist');
+        l.innerHTML = db.length ? '' : '<p style="text-align:center; color:grey">Belum ada data</p>';
+        [...db].reverse().forEach((i) => {
+            const actualIdx = db.indexOf(i);
+            l.innerHTML += `
+            <div class="history-card">
+                <div style="flex-grow:1; cursor:pointer" onclick="viewStruk(${i.id})">
+                    <b>${i.nama}</b> <span class="${i.rem > 0 ? 'badge-hutang' : 'badge-lunas'}">${i.rem > 0 ? 'BELUM LUNAS' : 'LUNAS'}</span><br>
+                    <small>${i.lay} | ${i.waktu}</small><br>
+                    <small style="color:${i.rem > 0 ? 'red' : 'green'}">Sisa: Rp${i.rem.toLocaleString()}</small>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center">
+                    ${i.rem > 0 ? `<button class="btn" style="background:var(--warning); color:white; padding:5px 10px; font-size:11px; width:auto" onclick="cicil(${actualIdx})">CICIL</button>` : ''}
+                    <span onclick="hapusSatu(${actualIdx})" style="cursor:pointer; font-size:18px; padding: 5px">🗑️</span>
+                </div>
+            </div>`;
+        });
+    }
+
+    function cicil(index) {
+        const item = db[index];
+        const bayarBaru = prompt(`Sisa hutang ${item.nama}: Rp${item.rem.toLocaleString()}\nMasukkan cicilan baru:`, "0");
+        if (bayarBaru === null || isNaN(bayarBaru) || bayarBaru === "") return;
+        const nominal = parseInt(bayarBaru);
+        if (nominal > item.rem) return alert("Melebihi sisa hutang!");
+        db[index].paid += nominal; db[index].rem -= nominal;
+        saveDB(); render();
+    }
+
+    function hapusSatu(index) { if(confirm("Hapus?")) { db.splice(index, 1); saveDB(); render(); } }
+    function hapusSemua() { if(confirm("Hapus semua?")) { db = []; saveDB(); render(); } }
+    function saveDB() { localStorage.setItem('az_db_v43', JSON.stringify(db)); }
+    function reset() { document.getElementById('form-card').style.display = 'block'; document.getElementById('halaman-struk').style.display = 'none'; document.querySelectorAll('input').forEach(i => i.value = ''); }
+    async function shareStruk() {
+        const canvas = await html2canvas(document.getElementById('struk-capture'), {scale:3});
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], `Struk.png`, { type: 'image/png' });
+            if (navigator.share) await navigator.share({ files: [file], title: 'Struk Konter Jalur Langit' });
+        });
+    }
+</script>
+</body>
+</html>
